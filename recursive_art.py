@@ -1,22 +1,31 @@
 """ TODO: Put your header comment here """
 
 import random
+import math
 from PIL import Image
 
+variables = [["x"],["y"]]
+functions = ["sin_pi", "cos_pi","inverse","square","avg","prod"]
 
 def build_random_function(min_depth, max_depth):
-    """ Builds a random function of depth at least min_depth and depth
-        at most max_depth (see assignment writeup for definition of depth
-        in this context)
+    if min_depth == 0:
+        for_variables = random.randint(0,1)
+        start_var = variables[for_variables]
+        print(start_var)
+        return [start_var]
+    elif min_depth == 1:
+        for_functions = random.randint(0,3)
+        start_function = functions[for_functions]
+        return [start_function, build_random_function(min_depth-1,max_depth-1)]
+    else:
+        for_functions = random.randint(0,5)
+        start_function = functions[for_functions]
+        if for_functions > 3:
+            return [start_function, build_random_function(min_depth-1,max_depth-1), build_random_function(min_depth-1,max_depth-1)]
+        else:
+            return [start_function, build_random_function(min_depth-1,max_depth-1)]
 
-        min_depth: the minimum depth of the random function
-        max_depth: the maximum depth of the random function
-        returns: the randomly generated function represented as a nested list
-                 (see assignment writeup for details on the representation of
-                 these functions)
-    """
-    # TODO: implement this
-    pass
+#build_random_function(7,9)
 
 
 def evaluate_random_function(f, x, y):
@@ -33,9 +42,30 @@ def evaluate_random_function(f, x, y):
         >>> evaluate_random_function(["y"],0.1,0.02)
         0.02
     """
-    # TODO: implement this
-    pass
+    #print('this is f ' ,f)
+    #print('this is f0 ', f[0])
+    if f[0] == ["x"]:
+        return x
+    elif f[0] == ["y"]:
+        return y
+    elif f[0] == "sin_pi":
+        return math.sin(math.pi* evaluate_random_function(f[1],x,y))
+    elif f[0] == "cos_pi":
+        return math.cos(math.pi* evaluate_random_function(f[1],x,y))
+    elif f[0] == "inverse":
+        return -evaluate_random_function(f[1],x,y)
+    elif f[0] == "square":
+        return (evaluate_random_function(f[1],x,y)**2)
+    elif f[0] == "avg":
+        return .5*(evaluate_random_function(f[1],x,y)+ evaluate_random_function(f[2],x,y))
+    elif f[0] == "prod":
+        return evaluate_random_function(f[1],x,y) * evaluate_random_function(f[2],x,y)
 
+
+
+#c = build_random_function(2,3)
+#print(c)
+#print(evaluate_random_function(c,-.05,.75))
 
 def remap_interval(val,
                    input_interval_start,
@@ -64,8 +94,12 @@ def remap_interval(val,
         >>> remap_interval(5, 4, 6, 1, 2)
         1.5
     """
-    # TODO: implement this
-    pass
+    proportion = input_interval_end - val
+    input_interval = input_interval_end-input_interval_start
+    factor = proportion/input_interval
+    output_interval = output_interval_end- output_interval_start
+    remapped = (output_interval*factor)+output_interval_start
+    return remapped
 
 
 def color_map(val):
@@ -116,9 +150,9 @@ def generate_art(filename, x_size=350, y_size=350):
         x_size, y_size: optional args to set image dimensions (default: 350)
     """
     # Functions for red, green, and blue channels - where the magic happens!
-    red_function = ["x"]
-    green_function = ["y"]
-    blue_function = ["x"]
+    red_function = build_random_function(7,9)
+    green_function = build_random_function(7,9)
+    blue_function = build_random_function(7,9)
 
     # Create image and loop over all pixels
     im = Image.new("RGB", (x_size, y_size))
@@ -138,13 +172,14 @@ def generate_art(filename, x_size=350, y_size=350):
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    #doctest.testmod()
 
     # Create some computational art!
     # TODO: Un-comment the generate_art function call after you
     #       implement remap_interval and evaluate_random_function
-    # generate_art("myart.png")
+    generate_art("myart.png")
 
     # Test that PIL is installed correctly
     # TODO: Comment or remove this function call after testing PIL install
-    test_image("noise.png")
+    #doctest.run_docstring_examples(remap_interval, globals(), verbose=True)
+    #test_image("noise.png")
